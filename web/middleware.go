@@ -12,6 +12,7 @@ func (c *Client) Logger() gin.HandlerFunc {
 		rl := c.log.With().
 			Str("ip", g.ClientIP()).
 			Str("uri", g.Request.RequestURI).
+			Str("method", g.Request.Method).
 			Logger()
 
 		rl.Debug().Msg("Request received")
