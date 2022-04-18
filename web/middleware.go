@@ -1,9 +1,10 @@
 package web
 
 import (
+	"time"
+
 	"github.com/dustin/go-humanize"
 	"github.com/gin-gonic/gin"
-	"time"
 )
 
 func (c *Client) Logger() gin.HandlerFunc {

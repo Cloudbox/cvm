@@ -1,21 +1,21 @@
 package web
 
 import (
-	"github.com/Cloudbox/cvm/logger"
-	"github.com/gin-contrib/cache"
-	"github.com/gin-contrib/cache/persistence"
+	"time"
+
+	cache "github.com/chenyahui/gin-cache"
+	"github.com/chenyahui/gin-cache/persist"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
-	"golang.org/x/sync/singleflight"
-	"time"
+
+	"github.com/Cloudbox/cvm/logger"
 )
 
 type Client struct {
 	cacheHours      int
 	maxResponseSize int64
 
-	store *persistence.InMemoryStore
-	sfg   *singleflight.Group
+	store *persist.MemoryStore
 	log   zerolog.Logger
 }
 
@@ -37,13 +37,12 @@ func New(c *Config) *Client {
 		cacheHours:      c.CacheHours,
 		maxResponseSize: c.MaxResponseSize,
 
-		store: persistence.NewInMemoryStore(time.Second),
-		sfg:   &singleflight.Group{},
+		store: persist.NewMemoryStore(time.Second),
 		log:   logger.New(""),
 	}
 }
 
 func (c *Client) SetHandlers(r *gin.Engine) {
 	// core
-	r.GET("/version", cache.CachePage(c.store, time.Duration(c.cacheHours)*time.Hour, c.Version))
+	r.GET("/version", cache.CacheByRequestURI(c.store, time.Duration(c.cacheHours)*time.Hour), c.Version)
 }

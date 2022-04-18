@@ -25,6 +25,11 @@ builds:
     flags:
       - -trimpath
 
+# MacOS Universal Binaries
+universal_binaries:
+  -
+    replace: true
+
 # Archive
 archives:
   -
@@ -38,7 +43,7 @@ checksum:
 
 # Snapshot
 snapshot:
-  name_template: "{{ .Major }}.{{ .Minor }}.{{ .Patch }}-dev+{{ .ShortCommit }}"
+  name_template: "{{ .Major }}.{{ .Minor }}.{{ .Patch }}-dev+{{ .Branch }}"
 
 # Changelog
 changelog:

@@ -4,15 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/Cloudbox/cvm/build"
-	"github.com/Cloudbox/cvm/web"
-	"github.com/alecthomas/kong"
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
-	"github.com/goccy/go-yaml"
-	"github.com/natefinch/lumberjack"
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
 	"io"
 	"net/http"
 	"os"
@@ -21,10 +12,23 @@ import (
 	"runtime"
 	"syscall"
 	"time"
+
+	"github.com/alecthomas/kong"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+	"github.com/goccy/go-yaml"
+	"github.com/natefinch/lumberjack"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
+
+	"github.com/Cloudbox/cvm/build"
+	"github.com/Cloudbox/cvm/web"
 )
 
 type config struct {
-	Web web.Config `yaml:"web"`
+	Web             web.Config `yaml:"web"`
+	TrustedProxies  []string   `yaml:"trusted_proxies"`
+	RemoteIPHeaders []string   `yaml:"remote_ip_headers"`
 }
 
 var (
@@ -122,6 +126,23 @@ func main() {
 	gin.SetMode(gin.ReleaseMode)
 
 	r := gin.New()
+
+	if len(cfg.TrustedProxies) > 0 {
+		// use configured trusted proxies
+		if err := r.SetTrustedProxies(cfg.TrustedProxies); err != nil {
+			log.Fatal().
+				Err(err).
+				Msg("Failed initialising web server")
+		}
+
+		// use configured remote ip headers
+		if len(cfg.RemoteIPHeaders) > 0 {
+			r.RemoteIPHeaders = cfg.RemoteIPHeaders
+		}
+
+		r.ForwardedByClientIP = true
+	}
+
 	wc := web.New(&cfg.Web)
 
 	r.Use(gin.Recovery())
