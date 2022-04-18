@@ -62,8 +62,8 @@ func main() {
 		}),
 		kong.Vars{
 			"version":     fmt.Sprintf("%s (%s@%s)", build.Version, build.GitCommit, build.Timestamp),
-			"config_file": filepath.Join(defaultConfigDirectory("crs", "config.yml"), "config.yml"),
-			"log_file":    filepath.Join(defaultConfigDirectory("crs", "config.yml"), "activity.log"),
+			"config_file": filepath.Join(defaultConfigDirectory("cvm", "config.yml"), "config.yml"),
+			"log_file":    filepath.Join(defaultConfigDirectory("cvm", "config.yml"), "activity.log"),
 		},
 	)
 
