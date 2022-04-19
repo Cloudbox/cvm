@@ -1,6 +1,8 @@
 package web
 
 import (
+	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -52,6 +54,29 @@ func (c *Client) Version(g *gin.Context) {
 		return
 	}
 
+	// validate response body
+	switch {
+	case strings.Contains(contentType, "json"):
+		if err := isJSON(rb); err != nil {
+			_ = g.AbortWithError(http.StatusInternalServerError, fmt.Errorf("validate url response json: %w", err))
+			return
+		}
+	case strings.Contains(contentType, "xml"):
+		if err := isXML(rb); err != nil {
+			_ = g.AbortWithError(http.StatusInternalServerError, fmt.Errorf("validate url response xml: %w", err))
+			return
+		}
+	}
+
 	// return response
 	g.Data(res.StatusCode(), contentType, rb)
+}
+
+func isJSON(b []byte) error {
+	var j interface{}
+	return json.Unmarshal(b, &j)
+}
+func isXML(b []byte) error {
+	var x interface{}
+	return xml.Unmarshal(b, &x)
 }
